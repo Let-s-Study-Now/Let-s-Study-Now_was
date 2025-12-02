@@ -1,0 +1,41 @@
+name: Auto Label
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: 자동 라벨 추가
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title.toLowerCase();
+            let labels = [];
+            
+            // 커밋 타입별 라벨 매칭
+            if (title.includes('feat:')) labels.push('feature');
+            if (title.includes('fix:')) labels.push('bug');
+            if (title.includes('docs:')) labels.push('documentation');
+            if (title.includes('style:')) labels.push('enhancement');
+            if (title.includes('design:')) labels.push('enhancement');
+            if (title.includes('test:')) labels.push('good first issue');
+            if (title.includes('refactor:')) labels.push('enhancement');
+            if (title.includes('build:')) labels.push('enhancement');
+            if (title.includes('ci:')) labels.push('enhancement');
+            if (title.includes('perf:')) labels.push('enhancement');
+            if (title.includes('chore:')) labels.push('enhancement');
+            
+            // 라벨 추가
+            if (labels.length > 0) {
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: labels
+              });
+            }
