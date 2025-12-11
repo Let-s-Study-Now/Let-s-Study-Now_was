@@ -19,7 +19,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 1. 클라이언트가 웹소켓 서버에 연결할 주소 (ws://localhost:8080/ws-stomp)
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns(
+                        "http://localhost:3000",
+                        "https://let-s-study-now-web.vercel.app",
+                        "https://*.vercel.app"
+                )
                 .withSockJS();
 
     }
