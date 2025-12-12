@@ -26,6 +26,7 @@ public class StudyRoomService {
     private final StudyRoomParticipantRepository participantRepository;
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final com.team.LetsStudyNow_rg.domain.member.repository.MemberRepository memberRepository;
     private final com.team.LetsStudyNow_rg.domain.studyroom.service.StudySessionService studySessionService;
     private final com.team.LetsStudyNow_rg.domain.timer.service.PersonalTimerService personalTimerService;
 
@@ -34,12 +35,14 @@ public class StudyRoomService {
                             StudyRoomParticipantRepository participantRepository,
                             GroupRepository groupRepository,
                             GroupMemberRepository groupMemberRepository,
+                            com.team.LetsStudyNow_rg.domain.member.repository.MemberRepository memberRepository,
                             com.team.LetsStudyNow_rg.domain.studyroom.service.StudySessionService studySessionService,
                             com.team.LetsStudyNow_rg.domain.timer.service.PersonalTimerService personalTimerService) {
         this.studyRoomRepository = studyRoomRepository;
         this.participantRepository = participantRepository;
         this.groupRepository = groupRepository;
         this.groupMemberRepository = groupMemberRepository;
+        this.memberRepository = memberRepository;
         this.studySessionService = studySessionService;
         this.personalTimerService = personalTimerService;
     }
@@ -347,7 +350,14 @@ public class StudyRoomService {
                 .orElseThrow(() -> new IllegalArgumentException("스터디 방을 찾을 수 없습니다"));
 
         return participantRepository.findByStudyRoomId(roomId).stream()
-                .map(StudyRoomParticipantResponse::new)
+                .map(participant -> {
+                    // Member 정보 조회
+                    com.team.LetsStudyNow_rg.domain.member.entity.Member member = 
+                        memberRepository.findById(participant.getMemberId())
+                            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다"));
+                    
+                    return new StudyRoomParticipantResponse(participant, member);
+                })
                 .collect(Collectors.toList());
     }
 }
